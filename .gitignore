@@ -1,0 +1,22 @@
+# Fisiere compilate assembly
+*.obj
+*.exe
+*.lst
+*.map
+*.crf
+*.bak
+
+# Fisiere temporare editor / sistem
+*~
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Foldere IDE
+.vs/
+.vscode/*
+!.vscode/settings.json
+
+# Fisiere CAD temporare (Proteus / backup)
+*.pdsbak
+*.DBK
