@@ -20,3 +20,6 @@ Thumbs.db
 # Fisiere CAD temporare (Proteus / backup)
 *.pdsbak
 *.DBK
+
+# Materiale curs / laborator (raman doar local, nu se urca pe GitHub)
+curs/
