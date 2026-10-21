@@ -23,3 +23,6 @@ Thumbs.db
 
 # Materiale curs / laborator (raman doar local, nu se urca pe GitHub)
 curs/
+
+# Enuntul proiectului (material de referinta, nu il publicam)
+Enunt_Proiect_*.pdf

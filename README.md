@@ -19,11 +19,21 @@ Proiectarea unui microsistem bazat pe microprocesorul 8086, cu:
 
 ```
 PM/
-├── doc/        # documentul de predare, notite, harta de memorie
-├── schematic/  # schema hardware (CAD)
-├── src/        # cod assembly 8086 (subrutinele)
+├── doc/
+│   ├── hardware.md   # descrierea hardware (memorie, decodificare, periferice)
+│   └── ghid.md       # ghid pas cu pas de implementare
+├── schematic/        # schema hardware (CAD)
+├── src/
+│   ├── proiect.asm   # programul principal + cele 8 subrutine
+│   └── sistem.inc    # definitii (adrese porturi, masti, cuvinte de control)
 └── README.md
 ```
+
+## De unde incepi
+
+Citeste `doc/ghid.md` — are ordinea de implementare, ce registre poti folosi
+si de unde inveti fiecare parte. Descrierea conexiunilor hardware (cum se
+leaga 8086 de memorii si interfete) e in `doc/hardware.md`.
 
 ## Subrutine (assembly 8086)
 
