@@ -139,5 +139,9 @@ Detaliat în `doc/TODO.md`. Pe secțiuni:
   (matrice 3x4) și afis_hexa (segmente + selecție rang). Adăugat oglinda
   portc_stare. Rămân doar verificări ce depind de schema reală (TODO 1, 2) și
   rularea asamblării în VS Code.
-- **(următorul pas)** De rulat asamblarea în VS Code; apoi schema CAD și
-  documentul de predare.
+- **(asamblare OK)** proiect.asm transformat in fisier UNIC (definitiile fostul
+  sistem.inc incluse direct, fara "include", ca sa ruleze in extensia VS Code).
+  Rulat cu TASM in DOSBox: "Error messages: None, Warning messages: None" -
+  cod asamblat si link-editat corect. Singurul warning benign: "DOSSEG directive
+  ignored" (inofensiv). PARTEA DE COD E VERIFICATA.
+- **(următorul pas)** Schema CAD (specificatie pin-cu-pin) si documentul de predare.
