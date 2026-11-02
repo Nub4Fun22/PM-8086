@@ -117,11 +117,27 @@ Detaliat în `doc/TODO.md`. Pe secțiuni:
 
 ---
 
+## Alocarea pinilor 8255 (decizie finală)
+
+- **Port A** (PA0..PA7) iesire -> segmentele afisajului 7-seg (a..g, dp)
+- **Port B** (PB0..PB3) intrare -> cele 4 coloane ale tastaturii
+- **Port C** iesire, impartit:
+  - PC0..PC2 -> cod binar (0..5) intr-un decodificator 74LS138 care face
+    si selectia celor 6 ranguri afisaj, si cele 3 linii de scanare tastatura
+  - PC3..PC7 -> 5 LED-uri (LED0..LED4); LED5 pe o iesire ramasa de la 74LS138
+- Oglinda `portc_stare` (RAM) tine ultima valoare scrisa pe Port C, ca sa
+  modificam LED-urile fara sa stricam bitii de selectie si invers.
+
 ## Istoric decizii (jurnal pe zile)
 
 - **(start)** Setup repo GitHub, structură foldere, mediu VS Code. Fixat
   adresele S1=0BF0h, S2=0C70h. Citit laboratoarele 1–6 pentru convenții.
 - **(boilerplate)** Creat sistem.inc + proiect.asm cu cele 8 subrutine,
-  doc/hardware.md (conexiuni + hartă memorie + decodificare), doc/ghid.md,
-  doc/PLAN.md, doc/TODO.md. Marcat toate TODO-urile în cod.
-- **(următorul pas)** TODO 0: decid alocarea biților pe Port C.
+  doc/hardware.md, doc/ghid.md, doc/PLAN.md, doc/TODO.md.
+- **(cod complet)** Luat decizia de alocare a pinilor (Opțiunea A - decide
+  asistentul). Scris COMPLET toate cele 8 subrutine, inclusiv scan_tastatura
+  (matrice 3x4) și afis_hexa (segmente + selecție rang). Adăugat oglinda
+  portc_stare. Rămân doar verificări ce depind de schema reală (TODO 1, 2) și
+  rularea asamblării în VS Code.
+- **(următorul pas)** De rulat asamblarea în VS Code; apoi schema CAD și
+  documentul de predare.

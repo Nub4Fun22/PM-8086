@@ -13,26 +13,23 @@
 ;   - LIBER de folosit in rutine: AX (AH/AL), BX, CX, DX, SI, DI
 ;     cu conditia sa salvezi pe stiva (PUSH/POP) ce vrei sa pastrezi.
 ;   - NU atinge direct: CS, IP (controlate de procesor).
-;   - DS il setezi O SINGURA DATA in main (MOV AX,@data / MOV DS,AX)
-;     ca sa poti accesa variabilele din .data; dupa aceea nu-l mai schimba.
-;   - SS si SP sunt pentru stiva; nu-i modifica manual decat daca stii
-;     exact ce faci. PUSH/POP/CALL/RET ii gestioneaza automat.
-;   - DX e "registrul de port": il folosim mereu ca sa tinem adresa de
-;     port pentru IN/OUT. De aceea multe rutine il distrug.
+;   - DS il setezi O SINGURA DATA in main (MOV AX,@data / MOV DS,AX).
+;   - SS/SP sunt pentru stiva; le gestioneaza PUSH/POP/CALL/RET.
+;   - DX e "registrul de port": il folosim mereu pentru adresa de port la IN/OUT.
 ;---------------------------------------------------------------------
-; CONVENTIE DE APEL folosita in tot fisierul:
+; CONVENTIE DE APEL:
 ;   - parametri de intrare in AL / BL / CL (documentat la fiecare rutina)
 ;   - rezultatul se intoarce in AL (sau prin Carry Flag)
 ;   - fiecare rutina spune explicit ce registre DISTRUGE
-;=====================================================================
-; !!! CITESTE: toate punctele de lucru sunt marcate cu "TODO" in cod.
-;     Cauta "TODO" (Ctrl+F) ca sa le vezi pe toate. Rezumat:
-;       TODO 0  - decizie alocare biti pe Port C (LED vs rang vs tastatura)
-;       TODO 1  - verifica valorile de config din sistem.inc
-;       TODO 2  - verifica tabela seg7 (segmente active pe 1 sau pe 0)
-;       TODO 6  - de SCRIS: scanarea minitastaturii
-;       TODO 8  - de COMPLETAT: selectia rangului in afis_hexa
-;       TODO T  - scenariu de test in main
+;---------------------------------------------------------------------
+; ALOCAREA PINILOR (decizie de proiect, detaliata in sistem.inc):
+;   Port A -> segmente afisaj 7-seg
+;   Port B -> coloane tastatura (intrare)
+;   Port C -> PC0..PC2 selectie rang/linie (via 74LS138), PC3..PC7 LED-uri
+;---------------------------------------------------------------------
+; NOTE DE VERIFICAT PE SCHEMA REALA (nu sunt erori de cod):
+;   TODO 1 - valorile de config (SER_MOD, SER_CMD, PAR_CFG) din sistem.inc
+;   TODO 2 - tabela seg7: segmente active pe 1 sau pe 0 (vezi mai jos)
 ;=====================================================================
 
 dosseg
@@ -43,37 +40,19 @@ include sistem.inc
 
 .data
     ; Tabela de conversie cifra hexa (0..F) -> cod 7 segmente.
-    ; Ordinea bitilor presupusa:  dp g f e d c b a
-    ; TODO 2: verifica cu schema ta daca segmentele sunt active pe 1 sau pe 0.
-    ;   Valorile de mai jos sunt pentru segmente active pe 1 (anod comun invers).
-    ;   Daca la tine sunt active pe 0, trebuie sa COMPLEMENTEZI fiecare octet
-    ;   (ex: in loc de 3Fh pui NOT 3Fh = 0C0h), altfel afisajul va fi inversat.
+    ; Ordinea bitilor:  dp g f e d c b a  (PA7..PA0)
+    ; TODO 2: valorile sunt pentru segmente active pe 1. Daca la tine
+    ;   segmentele se aprind pe 0, complementeaza fiecare octet (NOT).
     seg7 db 3Fh,06h,5Bh,4Fh,66h,6Dh,7Dh,07h   ; 0 1 2 3 4 5 6 7
          db 7Fh,6Fh,77h,7Ch,39h,5Eh,79h,71h   ; 8 9 A b C d E F
 
-    ; "Oglinda" software a starii LED-urilor (8255 nu permite citirea
-    ; sigura a unui port de iesire). Aici tinem ce am scos pe portul LED.
-    led_stare db 00h
-
-    ; TODO 0: daca selectia rangului afisajului e tot pe Port C, tine si
-    ;   pentru ea o oglinda separata (ex: rang_stare db 00h) ca sa nu te bati
-    ;   cu bitii LED-urilor. Vezi nota de la "TODO 0" de mai jos.
+    ; Oglinda software a Port C (8255 nu permite citirea sigura a unui port
+    ; de iesire). Tinem aici ce am scris ultima data pe Port C, ca sa putem
+    ; modifica doar unii biti (LED-uri vs selectie rang) fara sa-i stricam
+    ; pe ceilalti.
+    portc_stare db 00h
 
 .code
-
-;=====================================================================
-; TODO 0 - DECIZIE IMPORTANTA: alocarea bitilor pe Port C
-;---------------------------------------------------------------------
-; Acum DOUA rutine folosesc Port C si se SUPRAPUN:
-;   - led          scoate starea LED-urilor pe Port C
-;   - afis_hexa    vrea sa selecteze rangul (0..5) tot pe Port C
-; Trebuie sa imparti bitii Port C (8 biti) intre functii, de exemplu:
-;   PC0..PC2 -> selectie coloane/linii tastatura
-;   PC3..PC7 -> ... etc
-; SAU muti LED-urile pe Port B (daca nu-l folosesti la tastatura) etc.
-; Pana nu iei aceasta decizie, 6 si 8 nu pot fi corecte simultan.
-; Dupa ce decizi, actualizeaza mastile din sistem.inc si rutinele de mai jos.
-;=====================================================================
 
 ;=====================================================================
 ; main  -  punct de intrare / program demonstrativ
@@ -85,18 +64,19 @@ main proc
     CALL init_8255        ; programeaza interfata paralela
     CALL init_8251        ; programeaza interfata seriala
 
-    ; TODO T: scenariu de test. Decomenteaza / completeaza exemple ca sa
-    ;   demonstrezi ca rutinele functioneaza. Exemple:
-    ;     MOV BL, 0          ; LED 0
-    ;     MOV CL, 1         ; actiune = aprinde
-    ;     CALL led
-    ;     MOV AL, 0Ah       ; cifra 'A'
-    ;     MOV BL, 0         ; rangul 0
-    ;     CALL afis_hexa
-    ;     MOV AL, 'X'
-    ;     CALL ser_emisie
+    ; --- scenariu de test demonstrativ ---
+    MOV BL, 0             ; LED 0
+    MOV CL, 1             ; actiune = aprinde
+    CALL led
 
-    MOV AX, 4C00h        ; iesire DOS (doar pentru rulare in emulator)
+    MOV AL, 0Ah           ; cifra hexa 'A'
+    MOV BL, 0             ; rangul 0
+    CALL afis_hexa
+
+    MOV AL, 'X'           ; trimite caracterul 'X' pe serial
+    CALL ser_emisie
+
+    MOV AX, 4C00h         ; iesire DOS (doar pentru rulare in emulator)
     INT 21h
 main endp
 
@@ -110,13 +90,6 @@ main endp
 ; OBS: dupa reset, 8251 asteapta intai cuvantul de MOD, apoi COMANDA.
 ;=====================================================================
 init_8251 proc
-    ; TODO 1: verifica SER_MOD si SER_CMD in sistem.inc. Valorile actuale
-    ;   inseamna: asincron, 8 biti date, fara paritate, 1 stop, factor x16.
-    ;   Daca tema/schema cere alta configuratie (ex: paritate, 2 biti stop),
-    ;   schimba constantele acolo si justifica alegerea in document.
-    ; TODO 1: unele montaje cer un mic delay sau cateva scrieri de 0 pe reg.
-    ;   de control inainte de resetare (pentru resincronizare 8251). Verifica
-    ;   la laborator daca e nevoie.
     MOV DX, SER_CTRL
     MOV AL, SER_MOD      ; cuvant de mod: asincron 8N1, factor x16
     OUT DX, AL
@@ -134,10 +107,6 @@ init_8251 endp
 ; DISTRUGE: AL, DX
 ;=====================================================================
 init_8255 proc
-    ; TODO 1: verifica PAR_CFG in sistem.inc. Valoarea actuala (82h) =
-    ;   Port A iesire, Port B intrare, Port C iesire, mod 0.
-    ;   Daca iti schimbi alocarea perifericelor (ex: pui LED-uri pe Port B),
-    ;   recalculeaza cuvantul de control si actualizeaza constanta.
     MOV DX, PAR_CTRL
     MOV AL, PAR_CFG      ; A iesire, B intrare, C iesire (mod 0)
     OUT DX, AL
@@ -193,11 +162,9 @@ ser_receptie endp
 ; INTRARI : AL = octetul de scos pe Port A
 ; IESIRI  : niciuna
 ; DISTRUGE: DX (AL se pastreaza)
+; OBS: scoate direct un octet pe Port A (cele 8 linii paralele).
 ;=====================================================================
 par_emisie proc
-    ; TODO 1: Port A e folosit si de afis_hexa (pentru segmente). Daca vrei ca
-    ;   "emisie pe paralela" sa insemne alt port sau alt scop, decide clar ce
-    ;   reprezinta octetul scos aici si pe ce pini ajunge in schema.
     MOV DX, PAR_PORTA
     OUT DX, AL           ; scoate octetul pe Port A
     RET
@@ -208,26 +175,62 @@ par_emisie endp
 ; 6) scan_tastatura  -  scanarea minitastaturii (12 contacte)
 ;---------------------------------------------------------------------
 ; INTRARI : niciuna
-; IESIRI  : AL = codul tastei apasate (0..11), sau 0FFh daca nicio tasta
-; DISTRUGE: BX, CX, DX
-; IDEE: matrice 4 linii x 3 coloane = 12 taste.
-;       Activezi pe rand cate o linie prin Port C (PC0..PC3),
-;       citesti coloanele prin Port B, deduci tasta apasata.
+; IESIRI  : AL = codul tastei apasate (0..11), sau NICIO_TASTA (0FFh)
+; DISTRUGE: AX, BX, CX, DX
+; MODEL: matrice 3 linii x 4 coloane = 12 taste.
+;   - liniile se activeaza pe rand prin PC0..PC2 (valoare 0,1,2)
+;   - coloanele se citesc pe Port B (PB0..PB3)
+;   - o tasta apasata aduce bitul coloanei sale pe 1 cand linia ei e activa
+;   - cod tasta = linie * NR_COLOANE + coloana
+; ATENTIE: activarea liniei pe PC0..PC2 nu trebuie sa strice bitii LED
+;   (PC3..PC7). De aceea pastram LED-urile din oglinda si doar inlocuim
+;   bitii de selectie (PC0..PC2).
 ;=====================================================================
 scan_tastatura proc
-    ; ================= TODO 6: DE SCRIS DE LA ZERO =================
-    ; Acum rutina returneaza mereu 0FFh (nicio tasta). Trebuie sa scrii
-    ; toata bucla de scanare matriceala.
-    ; Schelet orientativ (pseudocod):
-    ;   cod = 0
-    ;   pentru fiecare linie 0..3:
-    ;       activeaza linia pe Port C (ex: OUT PAR_PORTC, masca_linie)
-    ;       IN AL, Port B                ; citeste coloanele
-    ;       pentru fiecare coloana 0..2:
-    ;           daca bitul coloanei e activ -> AL = cod ; RET
-    ;           cod = cod + 1
-    ;   AL = 0FFh  ; nicio tasta
-    MOV AL, 0FFh         ; valoare implicita: nicio tasta
+    XOR BH, BH           ; BH = numarul liniei curente (0..2)
+linie_urm:
+    CMP BH, NR_LINII
+    JAE nicio             ; am parcurs toate liniile fara tasta
+
+    ; --- activeaza linia BH pe PC0..PC2, pastrand bitii LED din oglinda ---
+    MOV AL, portc_stare
+    AND AL, NOT RANG_MASK ; sterge bitii PC0..PC2 (pastreaza LED-urile)
+    OR  AL, BH           ; pune codul liniei pe PC0..PC2
+    MOV portc_stare, AL
+    MOV DX, PAR_PORTC
+    OUT DX, AL
+
+    ; --- citeste coloanele de pe Port B ---
+    MOV DX, PAR_PORTB
+    IN  AL, DX           ; AL = starea coloanelor (PB0..PB3 utile)
+
+    ; --- testeaza fiecare coloana (0..NR_COLOANE-1) ---
+    XOR BL, BL           ; BL = numarul coloanei curente
+coloana_urm:
+    CMP BL, NR_COLOANE
+    JAE linie_gata
+    MOV CL, BL
+    MOV AH, 1
+    SHL AH, CL           ; AH = masca bitului coloanei BL
+    TEST AL, AH          ; coloana BL activa?
+    JNZ gasit
+    INC BL
+    JMP coloana_urm
+
+linie_gata:
+    INC BH
+    JMP linie_urm
+
+gasit:
+    ; cod = BH * NR_COLOANE + BL
+    MOV AL, BH
+    MOV CL, NR_COLOANE
+    MUL CL               ; AX = BH * NR_COLOANE (rezultat in AL, e mic)
+    ADD AL, BL           ; AL = cod tasta (0..11)
+    RET
+
+nicio:
+    MOV AL, NICIO_TASTA  ; 0FFh = nicio tasta
     RET
 scan_tastatura endp
 
@@ -239,28 +242,27 @@ scan_tastatura endp
 ;           CL = actiune (0 = stinge, 1 = aprinde)
 ; IESIRI  : niciuna
 ; DISTRUGE: AX, CX, DX
-; METODA: construim masca bitului (1 shiftat la stanga cu BL), apoi
-;         modificam variabila-oglinda led_stare si o scoatem pe port.
+; METODA: LED-urile sunt pe Port C incepand de la bitul LED_BAZA (PC3).
+;   Construim masca bitului, modificam DOAR acel bit in oglinda portc_stare
+;   (fara sa atingem bitii de selectie PC0..PC2), apoi scoatem pe Port C.
 ;=====================================================================
 led proc
     MOV AL, 1
-    MOV CH, CL           ; pastram actiunea in CH
-    MOV CL, BL           ; nr. de pozitii de shiftat
+    MOV CH, CL           ; pastram actiunea in CH (0 stinge / 1 aprinde)
+    MOV CL, BL
+    ADD CL, LED_BAZA     ; pozitia reala a bitului = nr_led + LED_BAZA
     SHL AL, CL           ; AL = masca bitului LED-ului cerut
     CMP CH, 0
-    JZ  stinge
-aprinde:
-    OR  led_stare, AL    ; pune bitul pe 1
-    JMP scoate
-stinge:
+    JZ  led_stinge
+led_aprinde:
+    OR  portc_stare, AL  ; pune bitul pe 1
+    JMP led_scoate
+led_stinge:
     NOT AL               ; masca inversata
-    AND led_stare, AL    ; pune bitul pe 0
-scoate:
-    MOV AL, led_stare
-    ; TODO 0: aici scoatem TOATA oglinda pe Port C. Daca Port C e impartit
-    ;   intre LED-uri si selectie rang/tastatura, trebuie sa combini (OR)
-    ;   doar bitii de LED cu ceilalti biti, nu sa suprascrii tot portul.
-    MOV DX, PAR_PORTC    ; LED-urile sunt pe Port C (ajusteaza daca difera)
+    AND portc_stare, AL  ; pune bitul pe 0
+led_scoate:
+    MOV AL, portc_stare
+    MOV DX, PAR_PORTC
     OUT DX, AL
     RET
 led endp
@@ -272,9 +274,11 @@ led endp
 ; INTRARI : AL = valoarea de afisat (0..0Fh)
 ;           BL = rangul pe care se afiseaza (0..5)
 ; IESIRI  : niciuna
-; DISTRUGE: AX, SI, DX
-; ALGORITM: cauta codul in tabela seg7[AL], il scoate pe Port A, apoi
-;           selecteaza rangul BL prin Port C (multiplexare).
+; DISTRUGE: AX, BX, SI, DX
+; ALGORITM:
+;   1. cauta codul de segmente in tabela seg7[AL]
+;   2. il scoate pe Port A (segmentele)
+;   3. selecteaza rangul BL pe PC0..PC2 (via 74LS138), pastrand bitii LED
 ;=====================================================================
 afis_hexa proc
     AND AL, 0Fh          ; sigur ramanem in 0..F
@@ -284,14 +288,15 @@ afis_hexa proc
     MOV AL, [SI]         ; AL = cod 7 segmente
     MOV DX, PAR_PORTA
     OUT DX, AL           ; scoate segmentele pe Port A
-    ; ================= TODO 8: DE COMPLETAT =================
-    ; Partea de sus (segmentele) e gata. Mai lipseste: selecteaza rangul BL.
-    ;   Pasi:
-    ;     1. construieste masca rangului (ex: 1 shiftat la stanga cu BL)
-    ;     2. scoate masca pe liniile de selectie a rangurilor (Port C)
-    ;   ATENTIE (vezi TODO 0): daca rangurile si LED-urile sunt pe acelasi
-    ;   Port C, nu suprascrie bitii LED-urilor - combina cu OR / foloseste
-    ;   o oglinda separata pentru selectia rangului.
+
+    ; --- selecteaza rangul BL pe PC0..PC2, pastrand LED-urile ---
+    MOV AL, portc_stare
+    AND AL, NOT RANG_MASK ; sterge bitii de selectie (pastreaza LED)
+    AND BL, RANG_MASK    ; rangul pe 3 biti (0..5, max 7)
+    OR  AL, BL           ; pune codul rangului pe PC0..PC2
+    MOV portc_stare, AL
+    MOV DX, PAR_PORTC
+    OUT DX, AL
     RET
 afis_hexa endp
 

@@ -9,35 +9,34 @@ Bifezi pe măsură ce termini. Legenda: [ ] de făcut, [x] gata, [~] parțial.
 
 Enunțul cere 8 subrutine. Starea lor acum:
 
-- [x] 1. `init_8251` — programare serială (scrisă, de verificat valorile)
-- [x] 2. `init_8255` — programare paralelă (scrisă, de verificat valorile)
+- [x] 1. `init_8251` — programare serială (scrisă)
+- [x] 2. `init_8255` — programare paralelă (scrisă)
 - [x] 3. `ser_emisie` — emisie serial (scrisă)
 - [x] 4. `ser_receptie` — recepție serial (scrisă)
 - [x] 5. `par_emisie` — emisie paralelă (scrisă)
-- [ ] 6. `scan_tastatura` — **DE SCRIS DE LA ZERO** (acum doar returnează 0FFh)
+- [x] 6. `scan_tastatura` — SCRISĂ (scanare matrice 3x4)
 - [x] 7. `led` — aprindere/stingere LED (scrisă)
-- [~] 8. `afis_hexa` — **DE COMPLETAT**: lipsește selecția rangului prin Port C
+- [x] 8. `afis_hexa` — SCRISĂ (segmente + selecție rang)
 
-### TODO cod — ce scriu efectiv:
+Toate cele 8 subrutine sunt acum SCRISE. Decizia de alocare a pinilor
+(fostul "TODO 0") e luată — vezi secțiunea de mai jos.
 
-- [ ] **TODO 6**: implementez bucla de scanare a tastaturii (matrice 4x3):
-      activez pe rând fiecare linie pe Port C, citesc coloanele pe Port B,
-      calculez codul tastei = linie*3 + coloana. Pseudocodul e deja în fișier.
+### Alocarea pinilor (decisă)
 
-- [ ] **TODO 8**: adaug selecția rangului (0..5) prin Port C în `afis_hexa`,
-      fără să stric biții LED-urilor.
+- Port A -> segmente afisaj 7-seg (PA0=a ... PA7=dp)
+- Port B -> coloane tastatura (PB0..PB3 intrare)
+- Port C -> PC0..PC2 selectie rang/linie (via 74LS138), PC3..PC7 LED-uri
 
-- [ ] **TODO decizie**: aloc clar biții pe Port C — care biți sunt LED-uri,
-      care sunt selecție rang, care sunt linii tastatură. Acum `led` și
-      `afis_hexa` folosesc amândouă Port C și se suprapun. Trebuie împărțit.
+### Ce mai rămâne la cod (verificări, DEPIND de schema reală):
 
-- [ ] **TODO verificare valori** (după ce am schema): confirm că sunt corecte
-      - tabela `seg7` (segmente active pe 1 sau pe 0?)
-      - cuvintele `SER_MOD`, `SER_CMD`, `PAR_CFG` din sistem.inc
-      - măștile LED și pozițiile biților
-
-- [ ] **TODO scenariu test** în `main`: pun câteva apeluri demonstrative
-      (aprind un LED, afișez o cifră, trimit un caracter serial).
+- [ ] **TODO 1**: confirm cuvintele de config după ce am schema:
+      `SER_MOD`, `SER_CMD`, `PAR_CFG` (sistem.inc).
+- [ ] **TODO 2**: confirm tabela `seg7` — segmente active pe 1 sau pe 0?
+      Dacă pe 0, complementez octeții.
+- [ ] **Asamblare**: rulez `proiect.asm` în VS Code (Run ASM code) ca să
+      confirm că trece fără erori de sintaxă.
+- [ ] **Hardware extern**: decodificatorul 74LS138 pentru selecția celor 6
+      ranguri + LED5 (al 6-lea LED) — de pus în schemă.
 
 ---
 
