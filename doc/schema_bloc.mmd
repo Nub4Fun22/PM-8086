@@ -1,0 +1,58 @@
+%% Schema-bloc a microsistemului cu 8086
+%% Diagrama Mermaid - se poate vizualiza pe github, in VS Code (extensie
+%% Mermaid) sau pe https://mermaid.live pentru a o exporta ca imagine
+%% pe care o pui ca figura in documentul de predare.
+
+graph TB
+    subgraph CPU["Unitate centrala"]
+        I8086["8086<br/>AD0-AD15 mux<br/>A16-A19, ALE<br/>RD WR M/IO"]
+        LATCH["74LS373 x3<br/>latch adrese<br/>(demux AD)"]
+    end
+
+    subgraph DEC["Decodificare adrese"]
+        D138["74LS138<br/>chip-select<br/>memorie"]
+        CMP["Comparatoare<br/>adresa I/O<br/>+ S1, S2"]
+    end
+
+    subgraph MEM["Memorii"]
+        EPROM["EPROM 27C2048<br/>128 KB<br/>E0000h-FFFFFh"]
+        SRAM["SRAM 62512<br/>64 KB<br/>00000h-0FFFFh"]
+    end
+
+    subgraph IO["Interfete I/O"]
+        I8251["8251 USART<br/>0BF0h-0BF2h<br/>(S1)"]
+        I8255["8255 PPI<br/>0C70h-0C76h<br/>(S2)"]
+    end
+
+    subgraph PERIF["Periferice"]
+        RS232["RS232<br/>TxD RxD DTR DSR"]
+        AFIS["Afisaj 7-seg<br/>6 ranguri"]
+        TAST["Minitastatura<br/>12 taste (3x4)"]
+        LEDS["6 LED-uri"]
+        DEC138["74LS138<br/>selectie rang/linie"]
+    end
+
+    I8086 ---|AD0-AD15| LATCH
+    I8086 ---|ALE| LATCH
+    LATCH -->|A0-A19 adresa| DEC
+    I8086 -.->|magistrala date| MEM
+    I8086 -.->|magistrala date| IO
+
+    D138 -->|CS#| EPROM
+    D138 -->|CS#| SRAM
+    CMP -->|CS#| I8251
+    CMP -->|CS#| I8255
+
+    I8251 ---|date seriale| RS232
+    I8255 ---|Port A: segmente| AFIS
+    I8255 ---|Port B: coloane| TAST
+    I8255 ---|Port C hi: LED| LEDS
+    I8255 ---|Port C lo: cod 3 biti| DEC138
+    DEC138 -->|6 ranguri| AFIS
+    DEC138 -->|3 linii| TAST
+
+    style CPU fill:#e3f2fd
+    style MEM fill:#fff3e0
+    style IO fill:#e8f5e9
+    style PERIF fill:#fce4ec
+    style DEC fill:#f3e5f5

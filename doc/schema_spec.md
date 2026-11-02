@@ -1,8 +1,11 @@
 # Specificația schemei (conexiuni pin-cu-pin)
 
 Document de lucru pentru desenarea schemei în Proteus (sau alt CAD).
-Fiecare secțiune listează ce pin se leagă de ce. Diagrama-bloc generală e
-în discuția din chat / se poate reface ca figură în document.
+Fiecare secțiune listează ce pin se leagă de ce.
+
+Diagrama-bloc a întregului sistem e în `doc/schema_bloc.mmd` (Mermaid). O poți
+vizualiza pe GitHub, în VS Code (extensie Mermaid) sau pe https://mermaid.live
+ca să o exporți ca imagine pentru documentul de predare.
 
 Legenda semnalelor:
 - `A0..A19` = magistrala de adrese (după latch-uri)
