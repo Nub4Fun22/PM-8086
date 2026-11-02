@@ -67,7 +67,6 @@ NICIO_TASTA EQU 0FFh         ; cod returnat cand nu e nicio tasta
 
 ;=====================================================================
 
-dosseg
 .model small
 .stack 100h
 
