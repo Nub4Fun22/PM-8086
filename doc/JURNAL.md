@@ -128,6 +128,38 @@ Detaliat în `doc/TODO.md`. Pe secțiuni:
 - Oglinda `portc_stare` (RAM) tine ultima valoare scrisa pe Port C, ca sa
   modificam LED-urile fara sa stricam bitii de selectie si invers.
 
+## Schema in EasyEDA (prin MCP easyeda-copilot)
+
+Conectare: MCP `easyeda-copilot-mcp` (npx) + extensia .eext in EasyEDA Pro Desktop
+(External Interactions / "Allow interactive with external" ON). Proiect: Proiect_PM.
+
+### Componente alese (part_uuid real din LCSC)
+
+| Rol | Cip folosit | Part / MPN | Nota |
+|-----|-------------|-----------|------|
+| CPU | 8086 | P8086 (AMD, DIP-40) | exact din tema |
+| Tact/reset | 8284A | MD8284A/B (DIP-18) | exact din tema |
+| Latch adrese x3 | 74LS373 | SN74LS373N (DIP-20) | |
+| Transceiver date x2 | 74LS245 | SN74LS245N (DIP-20) | |
+| Decodor x2 | 74LS138 | SN74LS138N (DIP-16) | memorii + porturi I/O |
+| EPROM | 27C2048 | AT27C2048-12PC (DIP-40) | exact din tema; 128K x16 |
+| SRAM | 62256 x2 | CY62256NL-70PC (DIP-28) | ALTERNATIVA (vezi mai jos) |
+| Serial | 8251 | LD8251A (DIP-28) | exact din tema |
+| Paralel | 8255 | P8255A-5 (DIP-40) | exact din tema |
+
+### Alternativa documentata (de scris in documentatia finala)
+- Tema cere SRAM **62512** (64K x8). Acesta NU exista in biblioteca EasyEDA/LCSC
+  sub niciun nume uzual (62512, 628512, HM628512, LH628512 - inexistente).
+  S-a folosit echivalentul **62256** (SRAM 32K x8), cate **2 circuite** pentru
+  a acoperi 64KB, organizate pe bancuri par/impar (ca la referinta Daria).
+- 27C2048 EXISTA si e folosit exact din tema (EPROM, 128K x16 pe DIP-40).
+
+### Arhitectura aleasa (coerenta cu codul assembly)
+- Afisaj: MULTIPLEXAT (selectie rang prin 74LS138) - asa e codul afis_hexa.
+- Periferice prin PORTURI I/O (IN/OUT), nu INT 21h.
+- Adrese: serial 0BF0h (S1), paralel 0C70h (S2) - ca in sistem.inc/proiect.asm.
+- 4 planse: 1) unitate centrala, 2) memorii, 3) interfete, 4) periferice.
+
 ## Istoric decizii (jurnal pe zile)
 
 - **(start)** Setup repo GitHub, structură foldere, mediu VS Code. Fixat
@@ -144,4 +176,11 @@ Detaliat în `doc/TODO.md`. Pe secțiuni:
   Rulat cu TASM in DOSBox: "Error messages: None, Warning messages: None" -
   cod asamblat si link-editat corect. Singurul warning benign: "DOSSEG directive
   ignored" (inofensiv). PARTEA DE COD E VERIFICATA.
-- **(următorul pas)** Schema CAD (specificatie pin-cu-pin) si documentul de predare.
+- **(schema EasyEDA via MCP)** Conectat MCP easyeda-copilot la EasyEDA Pro.
+  Confirmat ca toate componentele exista in LCSC (part_uuid reale). SRAM 62512
+  nu exista -> folosim 62256 x2 (documentat). PLANSA 1 (Unitate centrala)
+  CONSTRUITA COMPLET: 8086 + 8284A + 3x74LS373 + 2x74LS245, cablata fir-cu-fir,
+  beautified, 57% spatiu liber. Arata ca modelul Dariei. Checkpoint salvat.
+- **(următorul pas)** Plansa 2 (Memorii: 27C2048 + 62256x2 + 74LS138 + logica
+  ~WE par/impar), apoi plansa 3 (interfete) si 4 (periferice). Apoi tabele de
+  memorie in documentatie + documentul de predare.
