@@ -181,6 +181,12 @@ Conectare: MCP `easyeda-copilot-mcp` (npx) + extensia .eext in EasyEDA Pro Deskt
   nu exista -> folosim 62256 x2 (documentat). PLANSA 1 (Unitate centrala)
   CONSTRUITA COMPLET: 8086 + 8284A + 3x74LS373 + 2x74LS245, cablata fir-cu-fir,
   beautified, 57% spatiu liber. Arata ca modelul Dariei. Checkpoint salvat.
-- **(următorul pas)** Plansa 2 (Memorii: 27C2048 + 62256x2 + 74LS138 + logica
-  ~WE par/impar), apoi plansa 3 (interfete) si 4 (periferice). Apoi tabele de
-  memorie in documentatie + documentul de predare.
+- **(plansa 2 gata)** Plansa 2 (Memorii) construita: EPROM AT27C2048 (U8),
+  2x SRAM 62256 (U9 par, U10 impar), decodor 74LS138 (U11), 74LS32 (U13) pt
+  logica ~WE par/impar. Chip-select: SRAM=~Y0 (00000-0FFFFh), EPROM=~Y7
+  (E0000-FFFFFh). Adaugat si TABELUL de decodificare (grila bit-cu-bit A19..A0,
+  stil Daria) in stanga-jos. Title block completat pe pagina.
+  NOTA tehnica: in EasyEDA coordonata Y creste IN SUS (important pt plasari text).
+- **(următorul pas)** Plansa 3 (Interfete: 8251 + 8255 + 74LS138 decodor porturi
+  + MAX232 + microcomutatoare S1/S2) cu tabelul de decodificare porturi I/O.
+  Apoi plansa 4 (periferice). Apoi documentul de predare.
