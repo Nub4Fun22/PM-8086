@@ -108,20 +108,11 @@ primește biții de adresă A17, A18, A19 și este validat de M/IO#.
 Tabelul de decodificare completă (se rețin biții A19, A18, A17 care rămân
 constanți pe tot intervalul fiecărui bloc de memorie):
 
-| Mem. | A19 | A18 | A17 | A16 | A15 | A14 | A13 | A12 | A11 | A10 | A9 | A8 | A7 | A6 | A5 | A4 | A3 | A2 | A1 | A0 | Adresă |
-|------|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|--------|
-| SRAM | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 00000H |
-| SRAM | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 0FFFFH |
-| EPROM | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | E0000H |
-| EPROM | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | FFFFFH |
+![Tabel decodificare memorii](../Schema%20Finala%20Seby/tabel_memorii_clean.png)
 
-Biții A19, A18, A17 (îngroșați conceptual) sunt cei care rămân constanți și
-determină selecția blocului. Funcțiile de selecție rezultate:
-
-```
-SEL_SRAM  = ~A19 & ~A18 & ~A17  =  ~Y0   (A19 A18 A17 = 0 0 0)  ->  00000H
-SEL_EPROM =  A19 &  A18 &  A17  =  ~Y7   (A19 A18 A17 = 1 1 1)  ->  E0000H
-```
+Biții A19, A18, A17 sunt cei care rămân constanți și determină selecția blocului.
+Funcțiile de selecție rezultate sunt `SEL_SRAM = ~A19 & ~A18 & ~A17 = ~Y0`
+(adresa 00000H) și `SEL_EPROM = A19 & A18 & A17 = ~Y7` (adresa E0000H).
 
 ### 3. Interfețele serială și paralelă
 
@@ -144,19 +135,11 @@ circuitului (poziția 1 sau poziția 2), permițând mutarea ferestrei de adrese
 Tabelul de decodificare completă a porturilor (biții A11, A9, A8 determină ieșirea
 decodorului):
 
-| Adresă | A15 | A14 | A13 | A12 | A11 | A10 | A9 | A8 | A7 | A6 | A5 | A4 | A3 | A2 | A1 | A0 | Interfață |
-|--------|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|-----------|
-| 0AF0H | 0 | 0 | 0 | 0 | 1 | 0 | 1 | 0 | 1 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 8251 date, S1=0 |
-| 0BF0H | 0 | 0 | 0 | 0 | 1 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 8251 date, S1=1 |
-| 0C70H | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 8255 PA, S2=0 |
-| 0D70H | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 8255 PA, S2=1 |
+![Tabel decodificare porturi I/O](../Schema%20Finala%20Seby/tabel_porturi.png)
 
-Biții A11, A9, A8 sunt cei de selecție (intrările decodorului). Funcțiile:
-
-```
-SEL_8251 (S1=1) = ~A11 & ~A9 &  A8  =  ~Y1   ->  0BF0H
-SEL_8255 (S2=0) = ~A11 &  A9 & ~A8  =  ~Y2   ->  0C70H
-```
+Biții A11, A9, A8 sunt cei de selecție (intrările decodorului):
+`SEL_8251 = ~A11 & ~A9 & A8 = ~Y1` (0BF0H) și
+`SEL_8255 = ~A11 & A9 & ~A8 = ~Y2` (0C70H).
 
 În plus, în zona serială, bitul A1 (legat la C/D#) selectează între registrul de
 date (A1=0, adresa 0BF0H) și registrul de control/stare (A1=1, adresa 0BF2H). În
