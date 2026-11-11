@@ -103,8 +103,19 @@ Spațiul de adresare al lui 8086 este de 1 MB (00000H–FFFFFH). Harta de memori
 > circuite, pentru a acoperi cei 64 KB.
 
 **Decodificarea memoriilor** se face cu un **74LS138** (decodor 3-la-8) care
-primește biții de adresă A17, A18, A19 și este validat de M/IO#. Funcțiile de
-selecție:
+primește biții de adresă A17, A18, A19 și este validat de M/IO#.
+
+Tabelul de decodificare (se rețin biții A19, A18, A17 care rămân constanți pe tot
+intervalul fiecărui bloc de memorie):
+
+| Memorie | A19 | A18 | A17 | A16 | ... A0 | Adresă |
+|---------|-----|-----|-----|-----|--------|--------|
+| SRAM (început) | 0 | 0 | 0 | 0 | 0...0 | 00000H |
+| SRAM (sfârșit) | 0 | 0 | 0 | 0 | 1...1 | 0FFFFH |
+| EPROM (început) | 1 | 1 | 1 | 0 | 0...0 | E0000H |
+| EPROM (sfârșit) | 1 | 1 | 1 | 1 | 1...1 | FFFFFH |
+
+Funcțiile de selecție rezultate:
 
 ```
 SEL_SRAM  = ~A19 & ~A18 & ~A17  =  ~Y0   (A19 A18 A17 = 0 0 0)  ->  00000H
@@ -129,10 +140,27 @@ primește biții A8, A9, A11 și, prin microcomutatoarele S1/S2, selectează int
 activă. Comutatorul SPDT alege care ieșire a decodorului ajunge la pinul CS# al
 circuitului (poziția 1 sau poziția 2), permițând mutarea ferestrei de adrese.
 
-| Adresă | A11 | A10 | A9 | A8 | Interfață |
-|--------|-----|-----|----|----|-----------|
-| 0AF0H / 0BF0H | 0 | – | 0 | 0/1 | 8251 (S1) |
-| 0C70H / 0D70H | 0/1 | – | 1 | 0 | 8255 (S2) |
+Tabelul de decodificare a porturilor (biții A11, A9, A8 determină ieșirea
+decodorului):
+
+| Adresă | A11 | A9 | A8 | Ieșire decodor | Interfață |
+|--------|-----|----|----|----------------|-----------|
+| 0AF0H | 0 | 0 | 0 | ~Y0 | 8251, S1 = 0 |
+| 0BF0H | 0 | 0 | 1 | ~Y1 | 8251, S1 = 1 (ales) |
+| 0C70H | 0 | 1 | 0 | ~Y2 | 8255, S2 = 0 (ales) |
+| 0D70H | 1 | 1 | 0 | ~Y6 | 8255, S2 = 1 |
+
+Funcțiile de selecție:
+
+```
+SEL_8251 (S1=1) = ~A11 & ~A9 &  A8  =  ~Y1   ->  0BF0H
+SEL_8255 (S2=0) = ~A11 &  A9 & ~A8  =  ~Y2   ->  0C70H
+```
+
+În plus, în zona serială, bitul A1 (legat la C/D#) selectează între registrul de
+date (A1=0, adresa 0BF0H) și registrul de control/stare (A1=1, adresa 0BF2H). În
+zona paralelă, biții A1 și A2 selectează între Port A (0C70H), Port B (0C72H),
+Port C (0C74H) și registrul de control (0C76H).
 
 ### 4. Perifericele
 
