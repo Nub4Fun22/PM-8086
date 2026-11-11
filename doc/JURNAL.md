@@ -187,6 +187,14 @@ Conectare: MCP `easyeda-copilot-mcp` (npx) + extensia .eext in EasyEDA Pro Deskt
   (E0000-FFFFFh). Adaugat si TABELUL de decodificare (grila bit-cu-bit A19..A0,
   stil Daria) in stanga-jos. Title block completat pe pagina.
   NOTA tehnica: in EasyEDA coordonata Y creste IN SUS (important pt plasari text).
-- **(următorul pas)** Plansa 3 (Interfete: 8251 + 8255 + 74LS138 decodor porturi
-  + MAX232 + microcomutatoare S1/S2) cu tabelul de decodificare porturi I/O.
-  Apoi plansa 4 (periferice). Apoi documentul de predare.
+- **(plansa 3 gata)** Interfete: 8251 (U14) + 8255 (U15) + 74LS138 decodor porturi
+  (U16) + MAX232 (U17) + comutatoare S1/S2 (slide SPDT). Comutatoarele conectate ca
+  Daria: decodor genereaza Y0/Y1 (serial) si Y2/Y6 (paralel), iar comutatorul SPDT
+  alege care iesire ajunge la CS (poz1/poz2). + tabel decodificare porturi I/O.
+- **(plansa 4 gata)** Periferice pe 3 blocuri: Afisaj 7seg 6 ranguri (DS1-DS6 +
+  decodor rang U18, multiplexat - segmente comune pe Port A, selectie rang pe PC0-PC2),
+  6 LED-uri (LED0-5 + rezistoare 330R, pe PC3-PC7+PB7), minitastatura 12 taste
+  (matrice 3x4: linii PC0-PC2, coloane PB0-PB3 + pull-up 10k). Pagina A1.
+  TOATE CELE 4 PLANSE SUNT COMPLETE.
+- **(următorul pas)** Export PDF toate planele; documentul de predare final
+  (structura: titlu, tema, descriere hardware 3-5 pag, programe 3-7 pag, bibliografie).
