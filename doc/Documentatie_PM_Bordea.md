@@ -363,11 +363,28 @@ afis_hexa endp
 8. Îndrumătorul de laborator și materialele de la disciplina Proiectarea cu
    Microprocesoare.
 
-## Anexe
+## Anexe — Schemele microsistemului
 
-Schemele complete, realizate în EasyEDA, sunt atașate ca anexe (format A2/A1):
+Schemele complete au fost realizate în EasyEDA.
 
-1. Unitatea centrală
-2. Memoriile
-3. Interfețele serială și paralelă
-4. Perifericele (afișaj, LED-uri, tastatură)
+### Anexa 1 — Unitatea centrală
+
+![Schema unitatii centrale](../Schema%20Finala%20Seby/schema1_unitate_centrala.png)
+
+<div style="page-break-after: always;"></div>
+
+### Anexa 2 — Memoriile
+
+![Schema memoriilor](../Schema%20Finala%20Seby/schema2_memorii.png)
+
+<div style="page-break-after: always;"></div>
+
+### Anexa 3 — Interfețele serială și paralelă
+
+![Schema interfetelor](../Schema%20Finala%20Seby/schema3_interfete.png)
+
+<div style="page-break-after: always;"></div>
+
+### Anexa 4 — Perifericele (afișaj, LED-uri, tastatură)
+
+![Schema perifericelor](../Schema%20Finala%20Seby/schema4_periferice.png)
