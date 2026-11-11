@@ -26,3 +26,9 @@ curs/
 
 # Enuntul proiectului (material de referinta, nu il publicam)
 Enunt_Proiect_*.pdf
+
+# Exemplu de referinta (proiectul altui student) - nu il publicam
+Exemplu Scheme/
+
+# Config local Kiro (MCP, sandbox) - nu se urca
+.kiro/
