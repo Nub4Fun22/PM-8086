@@ -16,14 +16,14 @@
 ;---------------------------------------------------------------------
 ; INTERFATA SERIALA  -  circuit 8251 (USART)
 ;---------------------------------------------------------------------
-; 8251 are doua adrese de port:
-;   - registrul de DATE          (A0 = 0 -> adresa para)
-;   - registrul de CONTROL/STATUS(A0 = 1 -> adresa impara)
+; 8251 are doua adrese de port (C/D# legat la A1 pe 8086, D0..D7 => adrese pare):
+;   - registrul de DATE          (A1 = 0 -> 0BF0h)
+;   - registrul de CONTROL/STATUS(A1 = 1 -> 0BF2h)
 ; La SCRIERE pe adresa de control -> trimiti cuvant de MOD / COMANDA.
 ; La CITIRE  de pe adresa de control -> primesti cuvantul de STATUS.
 ;---------------------------------------------------------------------
 SER_DATA    EQU 0BF0h        ; registru de date (RX / TX)
-SER_CTRL    EQU 0BF1h        ; registru control (scriere) / status (citire)
+SER_CTRL    EQU 0BF2h        ; registru control (scriere) / status (citire)
 
 ; --- Biti din registrul de STATUS al lui 8251 (cititi cu IN) ---
 SER_TXRDY   EQU 00000001b    ; bit 0: 1 = emitatorul e gata (poti scrie un octet)

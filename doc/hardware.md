@@ -118,10 +118,10 @@ de microcomutator.
 
 ### 8251 – interfața serială (S1 → `0BF0h – 0BF2h`)
 
-- `0BF0h` → registrul de **date** (A0 = 0)
-- `0BF1h` → registrul de **control/status** (A0 = 1)
-- `CS_8251#` activ când A15..A1 corespund lui `0BF0h` (comparator de adresă).
-- Pinul **C/D#** (control/data) al lui 8251 se leagă de **A0**.
+- `0BF0h` → registrul de **date** (A1 = 0)
+- `0BF2h` → registrul de **control/status** (A1 = 1)
+- `CS_8251#` activ când A15..A1 corespund lui `0BF0h` (decodor de adresă).
+- Pinul **C/D#** (control/data) al lui 8251 se leagă de **A1** (pas de 2 pe magistrala D0–D7).
 
 ### 8255 – interfața paralelă (S2 → `0C70h – 0C76h`)
 

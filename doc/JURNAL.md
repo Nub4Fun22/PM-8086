@@ -198,3 +198,4 @@ Conectare: MCP `easyeda-copilot-mcp` (npx) + extensia .eext in EasyEDA Pro Deskt
   TOATE CELE 4 PLANSE SUNT COMPLETE.
 - **(următorul pas)** Export PDF toate planele; documentul de predare final
   (structura: titlu, tema, descriere hardware 3-5 pag, programe 3-7 pag, bibliografie).
+- **(sincronizare SER_CTRL)** Actualizat adresa `SER_CTRL` la `0BF2h` în cod (`proiect.asm`, `sistem.inc`), documentație (`Documentatie_PM_Bordea.md`, `doc/hardware.md`) și fișierele finale (`.docx` și `.pdf`), pentru aliniere perfectă cu conexiunea fizică din schemă (pinul C/D# legat la A1 pe 8086, adrese pare din 2 în 2 pe D0..D7).

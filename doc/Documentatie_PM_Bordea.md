@@ -175,7 +175,7 @@ de intrare/ieșire (instrucțiunile `IN` și `OUT`, prin registrul DX), nu prin
 ```asm
 ; --- INTERFATA SERIALA (8251), zona 0BF0h-0BF2h (microcomutator S1) ---
 SER_DATA    EQU 0BF0h        ; registru de date (RX / TX)
-SER_CTRL    EQU 0BF1h        ; registru control (scriere) / status (citire)
+SER_CTRL    EQU 0BF2h        ; registru control (scriere) / status (citire)
 SER_TXRDY   EQU 00000001b    ; status bit 0: emitator gata
 SER_RXRDY   EQU 00000010b    ; status bit 1: octet receptionat
 SER_MOD     EQU 01001110b    ; 4Eh: asincron, 8 date, fara paritate, 1 stop, x16

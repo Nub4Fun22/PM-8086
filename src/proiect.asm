@@ -40,7 +40,7 @@
 
 ; --- INTERFATA SERIALA (8251), zona 0BF0h-0BF2h (microcomutator S1) ---
 SER_DATA    EQU 0BF0h        ; registru de date (RX / TX)
-SER_CTRL    EQU 0BF1h        ; registru control (scriere) / status (citire)
+SER_CTRL    EQU 0BF2h        ; registru control (scriere) / status (citire) (A1=1, A0=0)
 
 SER_TXRDY   EQU 00000001b    ; status bit 0: emitator gata
 SER_RXRDY   EQU 00000010b    ; status bit 1: octet receptionat
